@@ -81,6 +81,10 @@ func main() {
 	var webhookServerPort int
 	var webhookServiceName string
 	var webhookSecretName string
+	// QPS indicates the maximum QPS to the master from this client.
+	var qps int
+	// Maximum burst for throttle.
+	var burst int
 
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
@@ -95,6 +99,8 @@ func main() {
 	flag.StringVar(&namespace, "namespace", os.Getenv(EnvKubeflowNamespace), "The namespace to monitor kubeflow jobs. If unset, it monitors all namespaces cluster-wide."+
 		"If set, it only monitors kubeflow jobs in the given namespace.")
 	flag.IntVar(&controllerThreads, "controller-threads", 1, "Number of worker threads used by the controller.")
+	flag.IntVar(&qps, "qps", 100, "The maximum QPS to the master from this client.")
+	flag.IntVar(&burst, "burst", 300, "Maximum burst for throttle.")
 
 	// PyTorch related flags
 	flag.StringVar(&config.Config.PyTorchInitContainerImage, "pytorch-init-container-image",
@@ -130,8 +136,12 @@ func main() {
 			},
 		}
 	}
+	// override qps and burst configuration
+	cgf := ctrl.GetConfigOrDie()
+	cgf.QPS = float32(qps)
+	cgf.Burst = burst
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	mgr, err := ctrl.NewManager(cgf, ctrl.Options{
 		Scheme: scheme,
 		Metrics: metricsserver.Options{
 			BindAddress: metricsAddr,
