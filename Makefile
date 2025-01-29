@@ -1,5 +1,5 @@
 # Image URL to use all building/pushing image targets
-IMG ?= kubeflow/training-operator:latest
+IMG ?=  runai.jfrog.io/op-containers-lab/training-operator:v1-855e096
 # CRD generation options
 CRD_OPTIONS ?= "crd:generateEmbeddedObjectMeta=true,maxDescLen=400"
 
@@ -41,8 +41,8 @@ manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and Cust
 
 generate: controller-gen ## Generate apidoc, sdk and code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations. 
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate/boilerplate.go.txt" paths="./pkg/apis/..."
-	hack/update-codegen.sh
-	hack/python-sdk/gen-sdk.sh
+#	hack/update-codegen.sh
+#	hack/python-sdk/gen-sdk.sh
 	$(MAKE) apidoc
 
 apidoc:
@@ -108,7 +108,7 @@ PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 controller-gen: ## Download controller-gen locally if necessary.
-	GOBIN=$(PROJECT_DIR)/bin go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.12.0
+	GOBIN=$(PROJECT_DIR)/bin go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.13.0
 
 KUSTOMIZE = $(shell pwd)/bin/kustomize
 kustomize: ## Download kustomize locally if necessary.

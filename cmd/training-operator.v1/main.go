@@ -69,6 +69,9 @@ func main() {
 	var namespace string
 	var monitoringPort int
 	var controllerThreads int
+	var controllerQps int
+	var controllerBurst int
+
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -84,7 +87,8 @@ func main() {
 	flag.IntVar(&monitoringPort, "monitoring-port", 9443, "Endpoint port for displaying monitoring metrics. "+
 		"It can be set to \"0\" to disable the metrics serving.")
 	flag.IntVar(&controllerThreads, "controller-threads", 1, "Number of worker threads used by the controller.")
-
+	flag.IntVar(&controllerQps, "controller-qps", 20, "The maximum QPS of the controller manager.")
+	flag.IntVar(&controllerBurst, "controller-burst", 30, "Maximum burst of the controller manager.")
 	// PyTorch related flags
 	flag.StringVar(&config.Config.PyTorchInitContainerImage, "pytorch-init-container-image",
 		config.PyTorchInitContainerImageDefault, "The image for pytorch init container")
@@ -106,7 +110,11 @@ func main() {
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	cfg := ctrl.GetConfigOrDie()
+	cfg.QPS = float32(controllerQps)
+	cfg.Burst = controllerBurst
+
+	mgr, err := ctrl.NewManager(cfg, ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
 		Port:                   monitoringPort,
