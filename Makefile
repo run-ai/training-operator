@@ -41,8 +41,8 @@ manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and Cust
 
 generate: controller-gen ## Generate apidoc, sdk and code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations. 
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate/boilerplate.go.txt" paths="./pkg/apis/..."
-#	hack/update-codegen.sh
-#	hack/python-sdk/gen-sdk.sh
+	hack/update-codegen.sh
+	hack/python-sdk/gen-sdk.sh
 	$(MAKE) apidoc
 
 apidoc:
