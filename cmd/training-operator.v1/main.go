@@ -88,7 +88,7 @@ func main() {
 		"It can be set to \"0\" to disable the metrics serving.")
 	flag.IntVar(&controllerThreads, "controller-threads", 1, "Number of worker threads used by the controller.")
 	flag.IntVar(&clientQps, "kube-api-qps", 20, "QPS indicates the maximum QPS to the master from this client.")
-	flag.IntVar(&clientBurst, "controller-burst", 30, "Maximum burst for throttle.")
+	flag.IntVar(&clientBurst, "kube-api-burst", 30, "Maximum burst for throttle.")
 	// PyTorch related flags
 	flag.StringVar(&config.Config.PyTorchInitContainerImage, "pytorch-init-container-image",
 		config.PyTorchInitContainerImageDefault, "The image for pytorch init container")
