@@ -1,5 +1,5 @@
 # Image URL to use all building/pushing image targets
-IMG ?= kubeflow/training-operator:latest
+IMG ?=  runai.jfrog.io/op-containers-lab/training-operator:v1-855e096
 # CRD generation options
 CRD_OPTIONS ?= "crd:generateEmbeddedObjectMeta=true,maxDescLen=400"
 
