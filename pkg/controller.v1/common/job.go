@@ -220,8 +220,10 @@ func (jc *JobController) ReconcileJobs(
 			jobStatus.CompletionTime = &now
 		}
 
-		// If the Job exceeds backoff limit or is past active deadline
-		// delete all pods and services, then set the status to failed
+		// Fix: https://github.com/kubeflow/trainer/issues/3419
+		jc.Recorder.Event(runtimeObject, corev1.EventTypeNormal, commonutil.NewReason(jobKind, commonutil.JobFailedReason), failureMessage)
+		commonutil.UpdateJobConditions(&jobStatus, apiv1.JobFailed, corev1.ConditionTrue, commonutil.NewReason(jobKind, commonutil.JobFailedReason), failureMessage)
+
 		if err := jc.DeletePodsAndServices(runtimeObject, runPolicy, jobStatus, pods); err != nil {
 			return err
 		}
@@ -239,10 +241,6 @@ func (jc *JobController) ReconcileJobs(
 				jc.Recorder.Eventf(runtimeObject, corev1.EventTypeNormal, "SuccessfulDeletePodGroup", "Deleted PodGroup: %v", jobName)
 			}
 		}
-
-		jc.Recorder.Event(runtimeObject, corev1.EventTypeNormal, commonutil.NewReason(jobKind, commonutil.JobFailedReason), failureMessage)
-
-		commonutil.UpdateJobConditions(&jobStatus, apiv1.JobFailed, corev1.ConditionTrue, commonutil.NewReason(jobKind, commonutil.JobFailedReason), failureMessage)
 
 		return jc.Controller.UpdateJobStatusInApiServer(job, &jobStatus)
 	} else {
